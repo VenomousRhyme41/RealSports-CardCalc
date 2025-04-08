@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RealSports CardCalc</title>
@@ -16,7 +14,6 @@
             min-height: 100vh;
             color: white;
         }
-
         .container {
             background-color: #2d2d2d;
             border-radius: 15px;
@@ -26,30 +23,26 @@
             max-width: 500px;
             text-align: center;
         }
-
         .logo-container {
             margin-bottom: 20px;
         }
-
         .logo {
             width: 200px;
             height: auto;
             margin: 0 auto;
             display: block;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
         }
-
         h1 {
             color: white;
             margin-bottom: 30px;
             font-size: 24px;
         }
-
         .dropdown-container, .input-container {
             position: relative;
             margin-bottom: 25px;
             text-align: left;
         }
-
         select {
             width: 100%;
             padding: 15px;
@@ -58,10 +51,22 @@
             appearance: none;
             background-color: #383838;
             font-size: 16px;
-            transition: all 0.3s;
             color: white;
+            cursor: pointer;
         }
-
+        select option {
+            background-color: #383838;
+            color: white;
+            padding: 8px;
+        }
+        select option[value="general"] { color: #808080; }
+        select option[value="common"] { color: #1E90FF; }
+        select option[value="uncommon"] { color: #2E8B57; }
+        select option[value="rare"] { color: #FF8C00; }
+        select option[value="epic"] { color: #FF0000; }
+        select option[value="legendary"] { color: #9370DB; }
+        select option[value="mystic"] { color: #FFD700; }
+        select option[value="iconic"] { color: #BA55D3; }
         input {
             width: 100%;
             padding: 15px;
@@ -69,26 +74,8 @@
             border-radius: 8px;
             background-color: #383838;
             font-size: 16px;
-            transition: all 0.3s;
             color: white;
         }
-
-        select:hover, input:hover {
-            border-color: white;
-        }
-
-        select:focus, input:focus {
-            outline: none;
-            border-color: #FFD700;
-        }
-
-        .input-container label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
         .btn {
             background-color: #4CAF50;
             color: white;
@@ -98,31 +85,31 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             width: 100%;
             max-width: 200px;
             margin: 10px auto 30px;
         }
-
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
         .result-container {
             padding: 15px;
             border-radius: 8px;
             background-color: #383838;
             margin-top: 20px;
         }
-
         .result-title {
             font-size: 16px;
             color: #BA55D3;
             margin-bottom: 5px;
         }
-
         .result-value {
             font-size: 24px;
             font-weight: bold;
             color: white;
         }
-
         .error {
             color: #FF5555;
             padding: 10px;
@@ -141,7 +128,7 @@
         
         <div class="dropdown-container">
             <select id="card-options">
-                <option value="" disabled selected>Select Card Type</option>
+                <option value="" disabled="" selected="">Select Card Type</option>
                 <option value="general">General</option>
                 <option value="common">Common</option>
                 <option value="uncommon">Uncommon</option>
@@ -175,73 +162,61 @@
             const calculateBtn = document.getElementById('calculate-btn');
             const xpResult = document.getElementById('xp-result');
             const errorMsg = document.getElementById('error-message');
-
-            function calculateXP() {
+            
+            // Initialize result display
+            xpResult.textContent = "0"; 
+            
+            calculateBtn.addEventListener('click', function() {
                 const cardType = cardSelect.value;
-                let xp = parseInt(xpInput.value) || 0;
+                let currentXP = parseInt(xpInput.value) || 0;
                 
-                // Reset display elements
+                console.log("Button clicked. Calculating...");
+                console.log("Card type:", cardType);
+                console.log("Current XP:", currentXP);
+                
+                // Reset error display
                 errorMsg.style.display = 'none';
                 errorMsg.textContent = '';
                 
-                // Show error if no card type selected
+                // Validate input
                 if (!cardType) {
                     errorMsg.textContent = 'Please select a card type';
                     errorMsg.style.display = 'block';
                     return;
                 }
                 
-                let maxXP, baseXP, xpNeeded;
-                
-                // Set values based on card type
-                switch(cardType) {
-                    case 'general':
-                        maxXP = 10;
-                        baseXP = 3380;
-                        break;
-                    case 'common':
-                        maxXP = 20;
-                        baseXP = 3370;
-                        break;
-                    default:
-                        maxXP = 0;
-                        baseXP = 0;
-                }
-                
-                // Validate input
-                if (maxXP > 0 && xp > maxXP) {
-                    errorMsg.textContent = `Error: Max XP for ${cardType} is ${maxXP}`;
-                    errorMsg.style.display = 'block';
-                    xpInput.value = maxXP;
-                    xp = maxXP;
-                }
-                
                 // Calculate XP needed
-                if (maxXP > 0) {
-                    xpNeeded = baseXP - xp;
-                    xpResult.textContent = xpNeeded.toLocaleString();
-                    
-                    // Console logging
-                    console.log(`----------------------------`);
-                    console.log(`Card Type: ${cardType}`);
-                    console.log(`Current XP: ${xp}`);
-                    console.log(`XP until Iconic: ${xpNeeded}`);
-                } else {
-                    xpResult.textContent = 'N/A';
-                    console.log(`No calculation for ${cardType} cards yet`);
+                let xpNeeded;
+                if (cardType === 'general') {
+                    if (currentXP > 10) {
+                        errorMsg.textContent = 'Max XP for General is 10';
+                        errorMsg.style.display = 'block';
+                        xpInput.value = 10;
+                        currentXP = 10;
+                    }
+                    xpNeeded = 3380 - currentXP;
+                } 
+                else if (cardType === 'common') {
+                    if (currentXP > 20) {
+                        errorMsg.textContent = 'Max XP for Common is 20';
+                        errorMsg.style.display = 'block';
+                        xpInput.value = 20;
+                        currentXP = 20;
+                    }
+                    xpNeeded = 3370 - currentXP;
                 }
-            }
-
-            // Event listeners
-            calculateBtn.addEventListener('click', calculateXP);
-            
-            // Also update when selection or input changes
-            cardSelect.addEventListener('change', calculateXP);
-            xpInput.addEventListener('input', calculateXP);
-            
-            // Initial calculation
-            calculateXP();
+                else {
+                    xpNeeded = 0;
+                }
+                
+                // Update display - THIS IS WHAT YOU WANTED
+                xpResult.textContent = xpNeeded.toLocaleString();
+                
+                console.log("XP until Iconic:", xpNeeded);
+                console.log("Display updated with:", xpResult.textContent);
+            });
         });
     </script>
-</body>
-</html>
+
+
+</body></html>
