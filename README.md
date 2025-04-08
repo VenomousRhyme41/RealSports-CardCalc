@@ -17,7 +17,8 @@
 
 ## Example
 📸 Preview
-![image](https://github.com/user-attachments/assets/6a2899ea-33ff-46d1-9588-f1e651926703)
+![image](https://github.com/user-attachments/assets/05f456ad-448b-47ad-8047-c80631f65ed3)
+
 
 ## Features to come
 - Team card setting
