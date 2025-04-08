@@ -164,57 +164,45 @@
             const xpResult = document.getElementById('xp-result');
             const errorMsg = document.getElementById('error-message');
             
-            // Initialize result display
-            xpResult.textContent = "0"; 
-            
+            // XP thresholds based on card types
+            const XP_DATA = {
+                general: { max: 10, base: 3380 },
+                common: { max: 20, base: 3370 },
+                uncommon: { max: 50, base: 3350 },
+                rare: { max: 100, base: 3300 },
+                epic: { max: 200, base: 3200 },
+                legendary: { max: 1000, base: 3000 },
+                mystic: { max: 2000, base: 2000 },
+                iconic: { max: 3380, base: 0 }
+            };
+
             calculateBtn.addEventListener('click', function() {
                 const cardType = cardSelect.value;
                 let currentXP = parseInt(xpInput.value) || 0;
                 
-                console.log("Button clicked. Calculating...");
-                console.log("Card type:", cardType);
-                console.log("Current XP:", currentXP);
-                
-                // Reset error display
+                // Reset errors
                 errorMsg.style.display = 'none';
                 errorMsg.textContent = '';
                 
-                // Validate input
+                // Validate selection
                 if (!cardType) {
                     errorMsg.textContent = 'Please select a card type';
                     errorMsg.style.display = 'block';
                     return;
                 }
                 
-                // Calculate XP needed
-                let xpNeeded;
-                if (cardType === 'general') {
-                    if (currentXP > 10) {
-                        errorMsg.textContent = 'Max XP for General is 10';
-                        errorMsg.style.display = 'block';
-                        xpInput.value = 10;
-                        currentXP = 10;
-                    }
-                    xpNeeded = 3380 - currentXP;
-                } 
-                else if (cardType === 'common') {
-                    if (currentXP > 20) {
-                        errorMsg.textContent = 'Max XP for Common is 20';
-                        errorMsg.style.display = 'block';
-                        xpInput.value = 20;
-                        currentXP = 20;
-                    }
-                    xpNeeded = 3370 - currentXP;
-                }
-                else {
-                    xpNeeded = 0;
+                const cardInfo = XP_DATA[cardType];
+                
+                // Validate XP input
+                if (currentXP > cardInfo.max) {
+                    errorMsg.textContent = `Max XP for ${cardType} is ${cardInfo.max}`;
+                    errorMsg.style.display = 'block';
+                    xpInput.value = cardInfo.max;
+                    currentXP = cardInfo.max;
                 }
                 
-                // Update display - THIS IS WHAT YOU WANTED
-                xpResult.textContent = xpNeeded.toLocaleString();
-                
-                console.log("XP until Iconic:", xpNeeded);
-                console.log("Display updated with:", xpResult.textContent);
+                // Calculate and display XP needed
+                xpResult.textContent = (cardInfo.base - currentXP).toLocaleString();
             });
         });
     </script>
