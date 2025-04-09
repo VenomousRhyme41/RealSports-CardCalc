@@ -1,15 +1,19 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RealSports CardCalc</title>
     <link rel="icon" type="image/x-icon" href="https://play-lh.googleusercontent.com/u_QLFl2MfNLvEbpG5xqKFrtgaEZevnln20VE1Ac2BjjsRDfFrcgQNKoSF3z0JKXsjUgM=w240-h480-rw">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #1a1a1a;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -23,6 +27,7 @@
             width: 90%;
             max-width: 500px;
             text-align: center;
+            margin-bottom: 20px;
         }
         .logo-container {
             margin-bottom: 20px;
@@ -32,6 +37,7 @@
             height: auto;
             margin: 0 auto;
             display: block;
+            border-radius: 8px;
             filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
         }
         h1 {
@@ -42,24 +48,37 @@
         .dropdown-container, .input-container {
             position: relative;
             margin-bottom: 25px;
+            width: 100%;
             text-align: left;
         }
-        select {
+        /* Unified styling for both dropdown and input */
+        select, input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #4CAF50;
+            padding: 14px 15px;
+            border: 2px solid #1E90FF;
             border-radius: 8px;
-            appearance: none;
             background-color: #383838;
             font-size: 16px;
             color: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+            height: 52px;
         }
-        select option {
-            background-color: #383838;
+        /* Dropdown-specific styling */
+        .dropdown-container::after {
+            content: "▼";
+            font-size: 12px;
             color: white;
-            padding: 8px;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
         }
+        /* Rarity colors */
         select option[value="general"] { color: #808080; }
         select option[value="common"] { color: #1E90FF; }
         select option[value="uncommon"] { color: #2E8B57; }
@@ -67,15 +86,23 @@
         select option[value="epic"] { color: #FF0000; }
         select option[value="legendary"] { color: #9370DB; }
         select option[value="mystic"] { color: #FFD700; }
-        select option[value="iconic"] { color: #BA55D3; }
+        
+        select.general { border-color: #808080; color: #808080; }
+        select.common { border-color: #1E90FF; color: #1E90FF; }
+        select.uncommon { border-color: #2E8B57; color: #2E8B57; }
+        select.rare { border-color: #FF8C00; color: #FF8C00; }
+        select.epic { border-color: #FF0000; color: #FF0000; }
+        select.legendary { border-color: #9370DB; color: #9370DB; }
+        select.mystic { border-color: #FFD700; color: #FFD700; }
+
+        /* Input-specific styling */
         input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #1E90FF;
-            border-radius: 8px;
-            background-color: #383838;
-            font-size: 16px;
-            color: white;
+            cursor: text;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         .btn {
             background-color: #4CAF50;
@@ -89,33 +116,71 @@
             transition: all 0.2s;
             width: 100%;
             max-width: 200px;
-            margin: 10px auto 30px;
+            margin: 10px auto 20px;
         }
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .result-container {
+        .result-box {
             padding: 15px;
             border-radius: 8px;
             background-color: #383838;
-            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: center;
         }
         .result-title {
             font-size: 16px;
-            color: #BA55D3;
             margin-bottom: 5px;
         }
+        .result-title.common { color: #1E90FF; }
+        .result-title.uncommon { color: #2E8B57; }
+        .result-title.rare { color: #FF8C00; }
+        .result-title.epic { color: #FF0000; }
+        .result-title.legendary { color: #9370DB; }
+        .result-title.mystic { color: #FFD700; }
+        .result-title.iconic { color: #BA55D3; }
+        
         .result-value {
             font-size: 24px;
             font-weight: bold;
             color: white;
         }
+        .error-container {
+            margin: 10px 0 20px;
+        }
         .error {
             color: #FF5555;
             padding: 10px;
             border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        .social-container {
             margin-top: 20px;
+            text-align: center;
+        }
+        .social-title {
+            color: #aaa;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .social-icon {
+            color: #fff;
+            font-size: 24px;
+            transition: all 0.2s ease;
+        }
+        .social-icon:hover {
+            transform: translateY(-2px);
+            opacity: 0.8;
+        }
+        .github {
+            color: #f0f0f0;
         }
     </style>
 </head>
@@ -125,11 +190,11 @@
             <img src="https://play-lh.googleusercontent.com/u_QLFl2MfNLvEbpG5xqKFrtgaEZevnln20VE1Ac2BjjsRDfFrcgQNKoSF3z0JKXsjUgM=w240-h480-rw" alt="RealSports Logo" class="logo">
         </div>
         
-        <h1>Realsports CardCalc</h1>
+        <h1>RealSports CardCalc</h1>
         
         <div class="dropdown-container">
             <select id="card-options">
-                <option value="" disabled="" selected="">Select Card Type</option>
+                <option value="" disabled selected>Select Card Type</option>
                 <option value="general">General</option>
                 <option value="common">Common</option>
                 <option value="uncommon">Uncommon</option>
@@ -137,7 +202,6 @@
                 <option value="epic">Epic</option>
                 <option value="legendary">Legendary</option>
                 <option value="mystic">Mystic</option>
-                <option value="iconic">Iconic</option>
             </select>
         </div>
         
@@ -148,12 +212,47 @@
         
         <button class="btn" id="calculate-btn">Calculate</button>
         
-        <div class="result-container">
-            <div class="result-title">Play rating until Iconic:</div>
-            <div class="result-value" id="xp-result">0</div>
+        <div class="error-container">
+            <div id="error-message" class="error"></div>
         </div>
         
-        <div id="error-message" class="error" style="display: none;"></div>
+        <div class="result-box">
+            <div class="result-title iconic">Play rating until Iconic:</div>
+            <div class="result-value" id="xp-iconic">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title mystic">Play rating until Mystic:</div>
+            <div class="result-value" id="xp-mystic">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title legendary">Play rating until Legendary:</div>
+            <div class="result-value" id="xp-legendary">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title epic">Play rating until Epic:</div>
+            <div class="result-value" id="xp-epic">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title rare">Play rating until Rare:</div>
+            <div class="result-value" id="xp-rare">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title uncommon">Play rating until Uncommon:</div>
+            <div class="result-value" id="xp-uncommon">N/A</div>
+        </div>
+        <div class="result-box">
+            <div class="result-title common">Play rating until Common:</div>
+            <div class="result-value" id="xp-common">N/A</div>
+        </div>
+    </div>
+
+    <div class="social-container">
+        <div class="social-title">Star and fork the repositories</div>
+        <div class="social-icons">
+            <a href="#" class="social-icon github">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -161,51 +260,78 @@
             const cardSelect = document.getElementById('card-options');
             const xpInput = document.getElementById('xp-input');
             const calculateBtn = document.getElementById('calculate-btn');
-            const xpResult = document.getElementById('xp-result');
             const errorMsg = document.getElementById('error-message');
-            
-            // XP thresholds based on card types
-            const XP_DATA = {
-                general: { max: 10, base: 3380 },
-                common: { max: 20, base: 3370 },
-                uncommon: { max: 50, base: 3350 },
-                rare: { max: 100, base: 3300 },
-                epic: { max: 200, base: 3200 },
-                legendary: { max: 1000, base: 3000 },
-                mystic: { max: 2000, base: 2000 },
-                iconic: { max: 3380, base: 0 }
+
+            const TIER_XP = {
+                general: { next: "common", req: 10, max: 10 },
+                common: { next: "uncommon", req: 30, max: 30 },
+                uncommon: { next: "rare", req: 50, max: 50 },
+                rare: { next: "epic", req: 100, max: 100 },
+                epic: { next: "legendary", req: 200, max: 200 },
+                legendary: { next: "mystic", req: 1000, max: 1000 },
+                mystic: { next: "iconic", req: 2000, max: 2000 }
             };
 
-            calculateBtn.addEventListener('click', function() {
+            const TOTAL_XP = {
+                iconic: 3380,
+                mystic: 1380,
+                legendary: 380,
+                epic: 180,
+                rare: 80,
+                uncommon: 30,
+                common: 10
+            };
+
+            function initialize() {
+                cardSelect.classList.add('general');
+                
+                cardSelect.addEventListener('change', function() {
+                    cardSelect.classList.remove('general', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mystic');
+                    cardSelect.classList.add(this.value);
+                });
+                
+                calculateBtn.addEventListener('click', calculateNow);
+                calculateNow();
+            }
+
+            function calculateNow() {
                 const cardType = cardSelect.value;
                 let currentXP = parseInt(xpInput.value) || 0;
                 
-                // Reset errors
                 errorMsg.style.display = 'none';
                 errorMsg.textContent = '';
                 
-                // Validate selection
                 if (!cardType) {
-                    errorMsg.textContent = 'Please select a card type';
-                    errorMsg.style.display = 'block';
+                    showError("Please select a card type");
                     return;
                 }
                 
-                const cardInfo = XP_DATA[cardType];
-                
-                // Validate XP input
-                if (currentXP > cardInfo.max) {
-                    errorMsg.textContent = `Max XP for ${cardType} is ${cardInfo.max}`;
-                    errorMsg.style.display = 'block';
-                    xpInput.value = cardInfo.max;
-                    currentXP = cardInfo.max;
+                const tierData = TIER_XP[cardType];
+                if (tierData && currentXP > tierData.max) {
+                    showError(`Max XP for ${cardType} is ${tierData.max}`);
+                    xpInput.value = tierData.max;
+                    currentXP = tierData.max;
+                    return;
                 }
                 
-                // Calculate and display XP needed
-                xpResult.textContent = (cardInfo.base - currentXP).toLocaleString();
-            });
+                Object.entries(TOTAL_XP).forEach(([tier, total]) => {
+                    const element = document.getElementById(`xp-${tier}`);
+                    
+                    const xpEarned = (cardType === 'general') 
+                        ? currentXP 
+                        : TOTAL_XP[cardType] + currentXP;
+                    
+                    element.textContent = xpEarned >= total ? "N/A" : (total - xpEarned).toLocaleString();
+                });
+            }
+
+            function showError(message) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+
+            initialize();
         });
     </script>
-
-
-</body></html>
+</body>
+</html>
