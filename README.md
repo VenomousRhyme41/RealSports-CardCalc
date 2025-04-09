@@ -5,7 +5,6 @@
 ## 🚀 Features
 - Instant play ratings calculations for card upgrades
 - Clean interface and website
-- Mobile-responsive design
 - Easy to use
 
 
@@ -17,12 +16,12 @@
 
 ## Example
 📸 Preview
-![image](https://github.com/user-attachments/assets/05f456ad-448b-47ad-8047-c80631f65ed3)
+![image](https://github.com/user-attachments/assets/ab51c8a0-b353-4a08-9a9f-92bc029ad041)
+
 
 
 ## Features to come
 - Team card setting
-- Play rating until other raritys
 - How many trades you need (avg)
 - How many cards you need (avg)
 - How much time (avg)
