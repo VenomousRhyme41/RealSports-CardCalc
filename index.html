@@ -42,8 +42,34 @@
         }
         h1 {
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             font-size: 24px;
+        }
+        .card-type-selector {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+            width: 100%;
+        }
+        .card-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #383838;
+            color: white;
+        }
+        .card-type-btn.active {
+            background-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+            transform: scale(1.02);
+        }
+        .card-type-btn:hover {
+            opacity: 0.9;
         }
         .dropdown-container, .input-container {
             position: relative;
@@ -51,7 +77,6 @@
             width: 100%;
             text-align: left;
         }
-        /* Unified styling for both dropdown and input */
         select, input {
             width: 100%;
             padding: 14px 15px;
@@ -67,7 +92,6 @@
             box-sizing: border-box;
             height: 52px;
         }
-        /* Dropdown-specific styling */
         .dropdown-container::after {
             content: "▼";
             font-size: 12px;
@@ -78,7 +102,6 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
-        /* Rarity colors */
         select option[value="general"] { color: #808080; }
         select option[value="common"] { color: #1E90FF; }
         select option[value="uncommon"] { color: #2E8B57; }
@@ -95,7 +118,6 @@
         select.legendary { border-color: #9370DB; color: #9370DB; }
         select.mystic { border-color: #FFD700; color: #FFD700; }
 
-        /* Input-specific styling */
         input {
             cursor: text;
         }
@@ -192,6 +214,12 @@
         
         <h1>RealSports CardCalc</h1>
         
+        <!-- Card type selector buttons -->
+        <div class="card-type-selector">
+            <button id="team-btn" class="card-type-btn">Team Cards</button>
+            <button id="player-btn" class="card-type-btn active">Player Cards</button>
+        </div>
+        
         <div class="dropdown-container">
             <select id="card-options">
                 <option value="" disabled selected>Select Card Type</option>
@@ -207,7 +235,7 @@
         
         <div class="input-container">
             <label for="xp-input">Current play rating</label>
-            <input type="number" id="xp-input" placeholder="Enter play rating value" min="0" value="0">
+            <input type="number" id="xp-input" placeholder="Enter play rating value" min="0" step="0.01" value="0">
         </div>
         
         <button class="btn" id="calculate-btn">Calculate</button>
@@ -261,42 +289,82 @@
             const xpInput = document.getElementById('xp-input');
             const calculateBtn = document.getElementById('calculate-btn');
             const errorMsg = document.getElementById('error-message');
-
-            const TIER_XP = {
+            const teamBtn = document.getElementById('team-btn');
+            const playerBtn = document.getElementById('player-btn');
+            
+            let currentCardMode = 'player'; // 'player' or 'team'
+            
+            // Player card XP requirements (unchanged from original)
+            const PLAYER_XP = {
                 general: { next: "common", req: 10, max: 10 },
                 common: { next: "uncommon", req: 30, max: 30 },
                 uncommon: { next: "rare", req: 50, max: 50 },
                 rare: { next: "epic", req: 100, max: 100 },
                 epic: { next: "legendary", req: 200, max: 200 },
                 legendary: { next: "mystic", req: 1000, max: 1000 },
-                mystic: { next: "iconic", req: 2000, max: 2000 }
+                mystic: { next: "iconic", req: 2000, max: 2000 },
+                total: {
+                    iconic: 3380,
+                    mystic: 1380,
+                    legendary: 380,
+                    epic: 180,
+                    rare: 80,
+                    uncommon: 30,
+                    common: 10
+                }
             };
-
-            const TOTAL_XP = {
-                iconic: 3380,
-                mystic: 1380,
-                legendary: 380,
-                epic: 180,
-                rare: 80,
-                uncommon: 30,
-                common: 10
+            
+            // Team card XP requirements (using your specific thresholds)
+            const TEAM_XP = {
+                general: { next: "common", req: 30, max: 30 },
+                common: { next: "uncommon", req: 60, max: 90 },
+                uncommon: { next: "rare", req: 150, max: 240 },
+                rare: { next: "epic", req: 300, max: 540 },
+                epic: { next: "legendary", req: 600, max: 1140 },
+                legendary: { next: "mystic", req: 3000, max: 4140 },
+                mystic: { next: "iconic", req: 6000, max: 10140 },
+                total: {
+                    iconic: 10140,
+                    mystic: 4140,
+                    legendary: 1140,
+                    epic: 540,
+                    rare: 240,
+                    uncommon: 90,
+                    common: 30
+                }
             };
 
             function initialize() {
                 cardSelect.classList.add('general');
                 
+                // Card mode toggle
+                teamBtn.addEventListener('click', () => setCardMode('team'));
+                playerBtn.addEventListener('click', () => setCardMode('player'));
+                
+                // Card type selector
                 cardSelect.addEventListener('change', function() {
                     cardSelect.classList.remove('general', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mystic');
                     cardSelect.classList.add(this.value);
+                    calculateNow();
                 });
+                
+                // Input changes trigger calculation
+                xpInput.addEventListener('input', calculateNow);
                 
                 calculateBtn.addEventListener('click', calculateNow);
                 calculateNow();
             }
 
+            function setCardMode(mode) {
+                currentCardMode = mode;
+                teamBtn.classList.toggle('active', mode === 'team');
+                playerBtn.classList.toggle('active', mode === 'player');
+                calculateNow();
+            }
+
             function calculateNow() {
                 const cardType = cardSelect.value;
-                let currentXP = parseInt(xpInput.value) || 0;
+                let currentXP = parseFloat(xpInput.value) || 0;
                 
                 errorMsg.style.display = 'none';
                 errorMsg.textContent = '';
@@ -306,22 +374,33 @@
                     return;
                 }
                 
-                const tierData = TIER_XP[cardType];
+                const currentModeXP = currentCardMode === 'player' ? PLAYER_XP : TEAM_XP;
+                const tierData = currentModeXP[cardType];
+                
                 if (tierData && currentXP > tierData.max) {
-                    showError(`Max XP for ${cardType} is ${tierData.max}`);
+                    showError(`Max XP for ${cardType} is ${tierData.max.toLocaleString()}`);
                     xpInput.value = tierData.max;
                     currentXP = tierData.max;
                     return;
                 }
                 
-                Object.entries(TOTAL_XP).forEach(([tier, total]) => {
+                Object.entries(currentModeXP.total).forEach(([tier, total]) => {
                     const element = document.getElementById(`xp-${tier}`);
                     
+                    // Calculate XP earned so far
                     const xpEarned = (cardType === 'general') 
                         ? currentXP 
-                        : TOTAL_XP[cardType] + currentXP;
+                        : currentModeXP.total[cardType] + currentXP;
                     
-                    element.textContent = xpEarned >= total ? "N/A" : (total - xpEarned).toLocaleString();
+                    // Calculate remaining XP needed
+                    const remainingXP = total - xpEarned;
+                    
+                    // Format the result (show whole numbers for .00 decimals)
+                    const formattedResult = remainingXP >= 0 
+                        ? (remainingXP % 1 === 0 ? remainingXP.toFixed(0) : remainingXP.toFixed(2)) 
+                        : "N/A";
+                    
+                    element.textContent = xpEarned >= total ? "N/A" : formattedResult;
                 });
             }
 
