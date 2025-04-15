@@ -214,7 +214,6 @@
         
         <h1>RealSports CardCalc</h1>
         
-        <!-- Card type selector buttons -->
         <div class="card-type-selector">
             <button id="team-btn" class="card-type-btn">Team Cards</button>
             <button id="player-btn" class="card-type-btn active">Player Cards</button>
@@ -292,9 +291,9 @@
             const teamBtn = document.getElementById('team-btn');
             const playerBtn = document.getElementById('player-btn');
             
-            let currentCardMode = 'player'; // 'player' or 'team'
+            let currentCardMode = 'player';
             
-            // Player card XP requirements (unchanged from original)
+
             const PLAYER_XP = {
                 general: { next: "common", req: 10, max: 10 },
                 common: { next: "uncommon", req: 30, max: 30 },
@@ -314,7 +313,6 @@
                 }
             };
             
-            // Team card XP requirements (using your specific thresholds)
             const TEAM_XP = {
                 general: { next: "common", req: 30, max: 30 },
                 common: { next: "uncommon", req: 60, max: 90 },
@@ -337,18 +335,15 @@
             function initialize() {
                 cardSelect.classList.add('general');
                 
-                // Card mode toggle
                 teamBtn.addEventListener('click', () => setCardMode('team'));
                 playerBtn.addEventListener('click', () => setCardMode('player'));
                 
-                // Card type selector
                 cardSelect.addEventListener('change', function() {
                     cardSelect.classList.remove('general', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mystic');
                     cardSelect.classList.add(this.value);
                     calculateNow();
                 });
                 
-                // Input changes trigger calculation
                 xpInput.addEventListener('input', calculateNow);
                 
                 calculateBtn.addEventListener('click', calculateNow);
@@ -387,15 +382,12 @@
                 Object.entries(currentModeXP.total).forEach(([tier, total]) => {
                     const element = document.getElementById(`xp-${tier}`);
                     
-                    // Calculate XP earned so far
                     const xpEarned = (cardType === 'general') 
                         ? currentXP 
                         : currentModeXP.total[cardType] + currentXP;
                     
-                    // Calculate remaining XP needed
                     const remainingXP = total - xpEarned;
                     
-                    // Format the result (show whole numbers for .00 decimals)
                     const formattedResult = remainingXP >= 0 
                         ? (remainingXP % 1 === 0 ? remainingXP.toFixed(0) : remainingXP.toFixed(2)) 
                         : "N/A";
