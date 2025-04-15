@@ -9,7 +9,9 @@
 
 The ultimate tool for RealSports players to calculate exact play ratings needed for card progression through all rarity tiers (General → Common → Uncommon → Rare → Epic → Legendary → Mystic → Iconic).
 
-![Calculator Interface](https://github.com/user-attachments/assets/ab51c8a0-b353-4a08-9a9f-92bc029ad041)
+![Calculator Interface](https://github.com/user-attachments/assets/c4e53227-a20d-4f61-a50d-1ab2c6b5c73d)
+
+
 
 ## ✨ Key Features
 
