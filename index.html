@@ -73,7 +73,7 @@
         }
         .dropdown-container, .input-container {
             position: relative;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             width: 100%;
             text-align: left;
         }
@@ -102,6 +102,7 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
+        select option[value=""] { color: #aaa; }
         select option[value="general"] { color: #808080; }
         select option[value="common"] { color: #1E90FF; }
         select option[value="uncommon"] { color: #2E8B57; }
@@ -126,34 +127,17 @@
             -webkit-appearance: none;
             margin: 0;
         }
-        .btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-            max-width: 200px;
-            margin: 10px auto 20px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
         .result-box {
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             background-color: #383838;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
         }
         .result-title {
             font-size: 16px;
             margin-bottom: 5px;
+            font-weight: bold;
         }
         .result-title.common { color: #1E90FF; }
         .result-title.uncommon { color: #2E8B57; }
@@ -169,14 +153,16 @@
             color: white;
         }
         .error-container {
-            margin: 10px 0 20px;
+            margin: 5px 0 10px;
+            min-height: 20px;
         }
         .error {
             color: #FF5555;
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
             text-align: center;
             display: none;
+            font-size: 14px;
         }
         .social-container {
             margin-top: 20px;
@@ -221,7 +207,7 @@
         
         <div class="dropdown-container">
             <select id="card-options">
-                <option value="" disabled selected>Select Card Type</option>
+                <option value="" selected>Select Card Type</option>
                 <option value="general">General</option>
                 <option value="common">Common</option>
                 <option value="uncommon">Uncommon</option>
@@ -234,10 +220,8 @@
         
         <div class="input-container">
             <label for="xp-input">Current play rating</label>
-            <input type="number" id="xp-input" placeholder="Enter play rating value" min="0" step="0.01" value="0">
+            <input type="number" id="xp-input" placeholder="Enter play rating value" min="0" step="0.1" value="0">
         </div>
-        
-        <button class="btn" id="calculate-btn">Calculate</button>
         
         <div class="error-container">
             <div id="error-message" class="error"></div>
@@ -272,28 +256,24 @@
             <div class="result-value" id="xp-common">N/A</div>
         </div>
     </div>
-
     <div class="social-container">
-        <div class="social-title">Star and fork the repositorie!</div>
+        <div class="social-title">Star and fork the repository!</div>
         <div class="social-icons">
             <a href="https://github.com/VenomousRhyme41/RealSports-CardCalc.github.io" class="social-icon github">
                 <i class="fab fa-github"></i>
             </a>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cardSelect = document.getElementById('card-options');
             const xpInput = document.getElementById('xp-input');
-            const calculateBtn = document.getElementById('calculate-btn');
             const errorMsg = document.getElementById('error-message');
             const teamBtn = document.getElementById('team-btn');
             const playerBtn = document.getElementById('player-btn');
             
             let currentCardMode = 'player';
             
-
             const PLAYER_XP = {
                 general: { next: "common", req: 10, max: 10 },
                 common: { next: "uncommon", req: 30, max: 30 },
@@ -333,21 +313,20 @@
             };
 
             function initialize() {
-                cardSelect.classList.add('general');
-                
                 teamBtn.addEventListener('click', () => setCardMode('team'));
                 playerBtn.addEventListener('click', () => setCardMode('player'));
                 
                 cardSelect.addEventListener('change', function() {
                     cardSelect.classList.remove('general', 'common', 'uncommon', 'rare', 'epic', 'legendary', 'mystic');
-                    cardSelect.classList.add(this.value);
+                    if (this.value) {
+                        cardSelect.classList.add(this.value);
+                    }
                     calculateNow();
                 });
                 
                 xpInput.addEventListener('input', calculateNow);
                 
-                calculateBtn.addEventListener('click', calculateNow);
-                calculateNow();
+                setInitialNA();
             }
 
             function setCardMode(mode) {
@@ -357,6 +336,12 @@
                 calculateNow();
             }
 
+            function setInitialNA() {
+                document.querySelectorAll('.result-value').forEach(el => {
+                    el.textContent = "N/A";
+                });
+            }
+
             function calculateNow() {
                 const cardType = cardSelect.value;
                 let currentXP = parseFloat(xpInput.value) || 0;
@@ -364,7 +349,7 @@
                 errorMsg.style.display = 'none';
                 errorMsg.textContent = '';
                 
-                if (!cardType) {
+                if (!cardType && currentXP > 0) {
                     showError("Please select a card type");
                     return;
                 }
@@ -374,25 +359,18 @@
                 
                 if (tierData && currentXP > tierData.max) {
                     showError(`Max XP for ${cardType} is ${tierData.max.toLocaleString()}`);
-                    xpInput.value = tierData.max;
                     currentXP = tierData.max;
-                    return;
+                    xpInput.value = tierData.max;
                 }
                 
                 Object.entries(currentModeXP.total).forEach(([tier, total]) => {
                     const element = document.getElementById(`xp-${tier}`);
-                    
-                    const xpEarned = (cardType === 'general') 
-                        ? currentXP 
-                        : currentModeXP.total[cardType] + currentXP;
-                    
+                    const xpEarned = (cardType === 'general') ? currentXP : currentModeXP.total[cardType] + currentXP;
                     const remainingXP = total - xpEarned;
-                    
-                    const formattedResult = remainingXP >= 0 
-                        ? (remainingXP % 1 === 0 ? remainingXP.toFixed(0) : remainingXP.toFixed(2)) 
-                        : "N/A";
-                    
-                    element.textContent = xpEarned >= total ? "N/A" : formattedResult;
+                    const showDecimal = xpInput.value.includes('.');
+                    const formattedValue = remainingXP >= 0 ? 
+                        (showDecimal ? remainingXP.toFixed(1) : Math.floor(remainingXP)) : "N/A";
+                    element.textContent = xpEarned >= total ? "N/A" : formattedValue;
                 });
             }
 
