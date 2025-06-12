@@ -2,7 +2,7 @@
 
 **A precise play rating calculator for tracking card progression in RealSports**  
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Available-brightgreen)](https://venomousrhyme41.github.io/RealSports-CardCalc.github.io/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Available-brightgreen)](https://venomousrhyme41.github.io/RealSports-CardCalc/)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## 🎯 Overview
@@ -30,7 +30,7 @@ Track your card progression effortlessly with this specialized calculator for Re
 ## 🌐 Live Website
 
 Access the calculator at:  
-🔗 [https://venomousrhyme41.github.io/RealSports-CardCalc.github.io/](https://venomousrhyme41.github.io/RealSports-CardCalc.github.io/)
+🔗 [https://venomousrhyme41.github.io/RealSports-CardCalc.github.io/](https://venomousrhyme41.github.io/RealSports-CardCalc/)
 
 ## 🛠️ How To Use
 
